@@ -1,1 +1,742 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Position (주체 위치) 학술 퀴즈</title>
+    <style>
+        /* Modern CSS Reset & Root Design Tokens */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --correct-bg: #ecfdf5;
+            --correct-border: #10b981;
+            --correct-text: #065f46;
+            --wrong-bg: #fef2f2;
+            --wrong-border: #ef4444;
+            --wrong-text: #991b1b;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            line-height: 1.6;
+        }
+
+        /* Header Styling */
+        header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff;
+            padding: 1.5rem 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header-title p {
+            font-size: 0.875rem;
+            color: #c7d2fe;
+            margin-top: 0.25rem;
+        }
+
+        .score-badge {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .score-badge-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #a5b4fc;
+            display: block;
+        }
+
+        .score-badge-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        /* Main Area & Layout */
+        main {
+            flex-grow: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Card Container */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Progress Bar Section */
+        .card-header {
+            background-color: #f1f5f9;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .question-counter {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .progress-track {
+            flex-grow: 1;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 20%;
+            background-color: var(--primary);
+            border-radius: 9999px;
+            transition: width 0.4s ease;
+        }
+
+        /* Question Content */
+        .card-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+            border: 1px solid #c7d2fe;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        /* Options List */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background-color: #ffffff;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .option-index {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Option Button Answer States */
+        .option-btn.correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct-text) !important;
+            font-weight: 600;
+        }
+
+        .option-btn.correct .option-index {
+            background-color: var(--correct-border);
+            border-color: var(--correct-border);
+            color: #ffffff;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-bg) !important;
+            border-color: var(--wrong-border) !important;
+            color: var(--wrong-text) !important;
+        }
+
+        .option-btn.wrong .option-index {
+            background-color: var(--wrong-border);
+            border-color: var(--wrong-border);
+            color: #ffffff;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .option-btn.dimmed {
+            opacity: 0.4;
+        }
+
+        /* Explanation Box */
+        .explanation-box {
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            border: 1px solid transparent;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .explanation-box.correct {
+            background-color: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: var(--correct-text);
+        }
+
+        .explanation-box.wrong {
+            background-color: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: var(--wrong-text);
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explanation-body {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        /* Next Button */
+        .action-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .primary-btn {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Result View */
+        .result-card {
+            text-align: center;
+            padding: 3rem 2rem;
+            display: none;
+        }
+
+        .result-icon {
+            width: 72px;
+            height: 72px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .result-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            max-width: 320px;
+            margin: 0 auto 2rem auto;
+        }
+
+        .score-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-top: 0.5rem;
+        }
+
+        .evaluation-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        /* Utilities & Animations */
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Layout Adjustments */
+        @media (max-width: 640px) {
+            main {
+                margin: 1rem auto;
+            }
+
+            .card-body {
+                padding: 1.25rem;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .option-btn {
+                padding: 0.875rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .score-badge {
+                align-self: flex-end;
+                margin-top: -2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <h1>Subject Position (주체 위치)</h1>
+                <p>담론 이론, 언어학, 비판적 미디어 연구 퀴즈</p>
+            </div>
+            <div id="score-badge" class="score-badge">
+                <span class="score-badge-label">현재 점수</span>
+                <span id="current-score" class="score-badge-value">0</span>
+                <span style="font-size: 0.85rem; color: #c7d2fe;"> / 5</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main>
+        <!-- Quiz Main Card -->
+        <div id="quiz-card" class="card">
+            <!-- Progress Bar -->
+            <div class="card-header">
+                <span id="question-counter" class="question-counter">문항 1 / 5</span>
+                <div class="progress-track">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Question Body -->
+            <div class="card-body">
+                <span id="category-tag" class="category-tag">이론 분야</span>
+                <h2 id="question-text" class="question-text">질문 텍스트가 들어가는 자리입니다.</h2>
+
+                <!-- Options -->
+                <div id="options-list" class="options-list">
+                    <!-- Option items dynamically injected -->
+                </div>
+
+                <!-- Explanation Box -->
+                <div id="explanation-box" class="explanation-box">
+                    <div id="explanation-title" class="explanation-title">
+                        <span id="explanation-icon">✓</span>
+                        <span id="explanation-status">정답입니다!</span>
+                    </div>
+                    <div id="explanation-body" class="explanation-body">
+                        학술적 해설 내용이 들어갑니다.
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="action-container">
+                    <button id="next-btn" class="primary-btn hidden" onclick="handleNextQuestion()">
+                        <span>다음 문항</span>
+                        <span>&rarr;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-card" class="card result-card">
+            <div class="result-icon">🎓</div>
+            <h2 class="result-title">학습 평가 완료</h2>
+            <p class="result-subtitle">Subject Position 개념에 대한 이해도 평가가 완료되었습니다.</p>
+
+            <div class="score-display">
+                <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">최종 획득 점수</span>
+                <div class="score-number">
+                    <span id="final-score">0</span>
+                    <span style="font-size: 1.5rem; color: var(--text-muted); font-weight: 400;">/ 5</span>
+                </div>
+            </div>
+
+            <div id="evaluation-text" class="evaluation-text">
+                학술적 평가 결과 메시지가 이곳에 출력됩니다.
+            </div>
+
+            <button class="primary-btn" onclick="restartQuiz()" style="margin: 0 auto;">
+                <span>🔄 퀴즈 다시 풀기</span>
+            </button>
+        </div>
+    </main>
+
+    <footer style="text-align: center; padding: 1.5rem; font-size: 0.8rem; color: var(--text-muted);">
+        Subject Position & Discourse Theory Quiz Application &copy; 2026
+    </footer>
+
+    <!-- Interactive Logic Script -->
+    <script>
+        // 5개 핵심 질문 및 학술 해설 데이터 세트
+        const quizData = [
+            {
+                category: "루이 알튀세르 (Louis Althusser)",
+                question: "1. 루이 알튀세르의 '호명(Interpellation)' 이론에서 '주체 위치(Subject Position)'가 형성되는 메커니즘에 대한 설명으로 가장 올바른 것은?",
+                options: [
+                    "개인은 이데올로기와 상관없이 태어날 때부터 자유롭고 완전하며 능동적인 주체성을 지닌다.",
+                    "이데올로기적 국가 기구(ISA)가 개별 개인을 호명할 때, 개인이 그 호명에 응답함으로써 이데올로기적 주체로 위치 지어진다.",
+                    "언어의 문법 구조 내에서 단순히 1인칭 주어('나')의 물리적 위치를 의미한다.",
+                    "경제적 생산 수단의 소유 여부에 의해서만 일차원적으로 결정되는 법적 지위이다."
+                ],
+                correct: 1,
+                explanation: "알튀세르에 따르면 개인은 선천적으로 완벽한 주체가 아니라 이데올로기에 의해 주체로 구성(constituted)됩니다. 길거리에서 경찰이 '어이, 거기 당신!'하고 부를 때(호명) 뒤돌아보는 행위처럼, 이데올로기적 국가 기구(학교, 언론, 가족 등)가 제시하는 지점과 부름에 개인이 응답(Interpellation)할 때 비로소 특정한 '주체 위치'를 차지하게 됩니다."
+            },
+            {
+                category: "미셸 푸코 (Michel Foucault)",
+                question: "2. 미셸 푸코의 담론 분석(Discourse Analysis) 관점에서 다루는 '담론적 주체 위치'의 성격에 관한 설명으로 가장 적절한 것은?",
+                options: [
+                    "주체는 담론 형성 이전에 이미 존재하며 담론의 규칙과 지식을 자율적으로 지배하고 통제한다.",
+                    "담론은 주체의 형성이나 권력 관계와는 전혀 무관한 순수한 언어적 표현에 불과하다.",
+                    "특정 역사적 시기의 담론 체계(의학, 정신의학, 법학 등)가 부여한 규칙 및 지식/권력 관계 내부에서만 주체가 차지할 수 있는 지점이 형성된다.",
+                    "담론적 주체 위치는 일평생 변하지 않는 선천적이고 고정불변한 본질이다."
+                ],
+                correct: 2,
+                explanation: "푸코의 관점에서 주체는 담론(Discourse)의 선행 원인이 아니라 담론의 '산물'입니다. 예를 들어 '의학 담론'이라는 지식/권력 체계 내에서만 '의사'와 '환자'라는 주체 위치가 비로소 성립되며, 말하는 자는 그 담론이 허용하는 특정 조건과 자리를 통해 발언권을 얻게 됩니다."
+            },
+            {
+                category: "영화 이론 및 기호학 (Film Theory)",
+                question: "3. 정신분석학적 영화 이론 및 시각 기호학에서 논의하는 '관객의 주체 위치(Spectator Position)' 및 '시선(Gaze)' 개념을 올바르게 설명한 것은?",
+                options: [
+                    "관객의 주체 위치는 상영관 내의 실제 물리적인 좌석 위치와 거리를 가리킨다.",
+                    "카메라 앵글, 프레이밍, 편집 구조 등 영화의 장치(Apparatus)가 관객으로 하여금 특정 방식의 응시와 시선을 취하도록 상상적 주체 지점을 제공한다.",
+                    "영화 속 등장인물이 스크린 밖의 감독을 직접 쳐다보는 행동만을 의미한다.",
+                    "관객은 영화 장치가 제공하는 텍스트 구조로부터 완전히 독립하여 항상 동일한 지각 상태를 유지한다."
+                ],
+                correct: 1,
+                explanation: "장-루이 보드리(Jean-Louis Baudry)와 롤라 멀비(Laura Mulvey) 등의 영화 이론에 따르면, 스크린, 조명, 카메라 앵글, 몽타주 기법 등 영화의 장치(Apparatus)는 관객에게 일종의 '이상적 시선'을 제공합니다. 관객은 시각적 텍스트가 유도하는 '상상적 주체 위치'에 놓임으로써 텍스트의 의미 구성 과정에 참여하게 됩니다."
+            },
+            {
+                category: "비판적 담론 분석 (CDA)",
+                question: "4. 비판적 담론 분석(CDA)에서 뉴스, 광고 등 텍스트의 구조와 '주체 위치'를 분석하는 주된 목적은 무엇인가?",
+                options: [
+                    "텍스트에 사용된 맞춤법과 문법적 오탈자를 교정하기 위해",
+                    "작가나 기자 개인의 글쓰기 속도와 단순 어휘량을 측정하기 위해",
+                    "텍스트가 독자/시청자에게 자연스럽게 받아들이도록 유도하는 지배적 가치관, 권력 관계, 이데올로기적 입장을 밝혀내기 위해",
+                    "모든 독자가 정확히 똑같은 방식으로만 텍스트를 읽도록 규제하기 위해"
+                ],
+                correct: 2,
+                explanation: "노만 페어클러(Norman Fairclough) 등의 비판적 담론 분석(CDA)은 언어와 담론이 권력을 유지하거나 재생산하는 방식을 탐구합니다. CDA는 미디어 텍스트가 어떤 형태의 '주체 위치(예: 순응하는 소비자, 특정 정당 지지자 등)'를 수용자에게 자연스러운 상식처럼 암묵적으로 제안하는지 해체하여 비판적으로 읽어냅니다."
+            },
+            {
+                category: "스튜어트 홀 (Stuart Hall)",
+                question: "5. 스튜어트 홀의 '인코딩/디코딩' 모델에서 텍스트가 제안하는 주체 위치를 수용자가 해석하는 3가지 방식에 관한 설명 중 옳지 않은 것은?",
+                options: [
+                    "지배적-헤게모니적 읽기(Dominant-Hegemonic Read): 생산자가 인코딩한 기호와 주체 위치를 수용자가 그대로 받아들이는 방식",
+                    "협상적 읽기(Negotiated Read): 대단위의 지배적 이데올로기는 인정하면서도, 자신의 구체적 맥락에 맞춰 부분적으로 수정하여 수용하는 방식",
+                    "대항적 읽기(Oppositional Read): 텍스트에 내재된 주체 위치를 해체하고 지배적 기호를 거부하며 대안적 맥락에서 재해석하는 방식",
+                    "스튜어트 홀에 의하면 수용자는 언제나 인코딩된 주체 위치에 완벽하게 갇혀서 대항적 읽기를 수행하는 것이 불가능하다."
+                ],
+                correct: 3,
+                explanation: "스튜어트 홀은 수용자를 단순하고 수동적인 존재로 보지 않았습니다. 인코딩(생산) 단계에서 지배적 주체 위치가 부여되더라도, 디코딩(수용) 단계에서 수용자는 자신의 계급, 젠더, 문화적 배경에 따라 '지배적', '협상적', '대항적' 읽기 중 하나를 선택할 수 있으며, 주체 위치를 능동적으로 재구성하거나 거부할 수 있다고 보았습니다."
+            }
+        ];
+
+        // App States
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // DOM Elements
+        const quizCard = document.getElementById('quiz-card');
+        const resultCard = document.getElementById('result-card');
+        const questionCounter = document.getElementById('question-counter');
+        const progressFill = document.getElementById('progress-fill');
+        const categoryTag = document.getElementById('category-tag');
+        const questionText = document.getElementById('question-text');
+        const optionsList = document.getElementById('options-list');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationStatus = document.getElementById('explanation-status');
+        const explanationIcon = document.getElementById('explanation-icon');
+        const explanationBody = document.getElementById('explanation-body');
+        const nextBtn = document.getElementById('next-btn');
+        const currentScoreEl = document.getElementById('current-score');
+        const finalScoreEl = document.getElementById('final-score');
+        const evaluationText = document.getElementById('evaluation-text');
+
+        // Initialize App
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            isAnswered = false;
+            
+            quizCard.classList.remove('hidden');
+            resultCard.style.display = 'none';
+            document.getElementById('score-badge').style.display = 'block';
+            
+            updateScoreDisplay();
+            renderQuestion();
+        }
+
+        // Render Current Question
+        function renderQuestion() {
+            isAnswered = false;
+            const data = quizData[currentQuestion];
+
+            // Progress & Headers
+            questionCounter.textContent = `문항 ${currentQuestion + 1} / ${quizData.length}`;
+            progressFill.style.width = `${((currentQuestion + 1) / quizData.length) * 100}%`;
+            categoryTag.textContent = data.category;
+            questionText.textContent = data.question;
+
+            // Reset Explanation & Next Button
+            explanationBox.style.display = 'none';
+            explanationBox.className = 'explanation-box';
+            nextBtn.classList.add('hidden');
+
+            // Render Options
+            optionsList.innerHTML = '';
+            data.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.onclick = () => checkAnswer(index);
+
+                const idxSpan = document.createElement('span');
+                idxSpan.className = 'option-index';
+                idxSpan.textContent = String.fromCharCode(65 + index); // A, B, C, D
+
+                const textSpan = document.createElement('span');
+                textSpan.style.flexGrow = '1';
+                textSpan.textContent = optText;
+
+                btn.appendChild(idxSpan);
+                btn.appendChild(textSpan);
+                optionsList.appendChild(btn);
+            });
+        }
+
+        // Check Answer Logic
+        function checkAnswer(selectedIndex) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const data = quizData[currentQuestion];
+            const isCorrect = selectedIndex === data.correct;
+            const buttons = optionsList.querySelectorAll('.option-btn');
+
+            if (isCorrect) {
+                score++;
+                updateScoreDisplay();
+            }
+
+            // Update option styles
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === data.correct) {
+                    btn.classList.add('correct');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('wrong');
+                } else {
+                    btn.classList.add('dimmed');
+                }
+            });
+
+            // Show Explanation Box
+            explanationBox.style.display = 'block';
+            if (isCorrect) {
+                explanationBox.classList.add('correct');
+                explanationStatus.textContent = "정답입니다!";
+                explanationIcon.textContent = "✓";
+            } else {
+                explanationBox.classList.add('wrong');
+                explanationStatus.textContent = "오답입니다.";
+                explanationIcon.textContent = "✕";
+            }
+            explanationBody.textContent = data.explanation;
+
+            // Show Next Button
+            nextBtn.classList.remove('hidden');
+        }
+
+        // Handle Next Question Navigation
+        function handleNextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Update Score Header
+        function updateScoreDisplay() {
+            currentScoreEl.textContent = score;
+        }
+
+        // Final Score & Evaluation Screen
+        function showResults() {
+            quizCard.classList.add('hidden');
+            resultCard.style.display = 'block';
+            finalScoreEl.textContent = score;
+
+            let evaluation = "";
+            if (score === 5) {
+                evaluation = "<strong>탁월합니다! (5/5)</strong><br>알튀세르, 푸코, 영화 이론, CDA, 스튜어트 홀로 이어지는 '주체 위치(Subject Position)'의 이론적 궤적과 비판적 담론 개념을 완벽하게 이해하고 계십니다.";
+            } else if (score >= 3) {
+                evaluation = "<strong>우수합니다! (" + score + "/5)</strong><br>주체 위치 개념의 핵심적인 맥락을 잘 파악하고 계십니다. 틀린 문항의 학술적 해설을 복습하시면 담론 분석 이론을 더 명확히 이해하실 수 있습니다.";
+            } else {
+                evaluation = "<strong>기초 복습 권장 (" + score + "/5)</strong><br>주체 위치는 언어학, 문화연구, 영화이론에서 이데올로기와 주체의 관계를 이해하는 핵심 개념입니다. 각 문제의 해설을 참고하여 이론가별 관점을 재정리해보세요.";
+            }
+
+            evaluationText.innerHTML = evaluation;
+        }
+
+        // Restart Quiz
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // Run on Load
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
